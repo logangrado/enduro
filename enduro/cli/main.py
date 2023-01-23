@@ -13,3 +13,7 @@ def run(config_path):
     from enduro.run import run
 
     run(config_path)
+
+
+if __name__ == "__main__":
+    main()
