@@ -1,4 +1,5 @@
 import pydantic
+import datetime
 
 
 class CarConfig(pydantic.BaseModel):
@@ -15,6 +16,9 @@ class TrackConfig(pydantic.BaseModel):
 
 class RaceConfig(pydantic.BaseModel):
     duration: float
+    start_time: datetime.time
+    sim_time: datetime.time
+    mult: float
 
 
 class EnduroConfig(pydantic.BaseModel):

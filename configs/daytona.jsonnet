@@ -11,5 +11,8 @@
   },
   race: {
     duration: 360,
+    start_time: "9:30",
+    sim_time: "13:40",
+    mult: 4,
   }
 }

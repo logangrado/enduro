@@ -1,11 +1,19 @@
 import json
 import math
+import datetime
 
 import pandas as pd
 import numpy as np
 import _jsonnet
 
 from enduro.config import EnduroConfig
+
+
+def _time_add_timedelta(time, td):
+    dt = datetime.datetime(year=2000, month=1, day=1, hour=time.hour, minute=time.minute, second=time.second)
+    dt = dt + td
+    time_out = dt.time()
+    return time_out
 
 
 def _load_config(config_path):
@@ -27,12 +35,33 @@ def _format_dt_str(dt):
     return time_str
 
 
+def _format_time_str(time):
+    return f"{time.hour:2d}:{time.minute:02d}"
+
+
 def _print_df(df):
     for col in df.columns:
         if pd.api.types.is_timedelta64_dtype(df[col]):
             df[col] = df[col].apply(_format_dt_str)
 
+        if isinstance(df[col].iloc[0], datetime.time):
+            df[col] = df[col].apply(_format_time_str)
+
     print(df)
+
+
+def _compute_times(config, stint_df):
+    stint_df["time_start"] = stint_df["t_start"].apply(lambda x: _time_add_timedelta(config.race.start_time, x))
+    stint_df["time_end"] = stint_df["t_end"].apply(lambda x: _time_add_timedelta(config.race.start_time, x))
+
+    stint_df["sim_time_start"] = (stint_df["t_start"] * config.race.mult).apply(
+        lambda x: _time_add_timedelta(config.race.sim_time, x)
+    )
+    stint_df["sim_time_end"] = (stint_df["t_end"] * config.race.mult).apply(
+        lambda x: _time_add_timedelta(config.race.sim_time, x)
+    )
+
+    return stint_df
 
 
 def _compute_stints(config):
@@ -121,6 +150,9 @@ def _compute_stints(config):
             "pit_service_time",
         ]
     ]
+
+    # Add final computed values
+    stint_df = _compute_times(config, stint_df)
 
     return stint_df
 
