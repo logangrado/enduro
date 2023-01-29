@@ -68,29 +68,29 @@ def _compute_stints(config):
     stint_lap_tolerance = 0.1
 
     max_stint_laps = int(config.car.max_fuel / config.track.fuel_per_lap - stint_lap_tolerance)
-    max_stint_time_s = max_stint_laps * config.track.avg_lap_time_s
+    max_stint_time_s = max_stint_laps * config.track.avg_lap_time.seconds
 
     max_pit_refuel_time_s = config.car.max_fuel / config.car.refuel_rate
-    max_pit_time_s = max_pit_refuel_time_s + config.track.pit_time_loss_s
+    # max_pit_time_s = max_pit_refuel_time_s + config.track.pit_time_loss.seconds
 
     # Compute est. number of stints, without accounting for pit time
-    n_stints = math.ceil(config.race.duration * 60 / max_stint_time_s)
+    n_stints = math.ceil(config.race.duration.seconds / max_stint_time_s)
 
     # Compute total fuel requirement for race. Do not account for pit time.
-    total_race_time_s = config.race.duration * 60 + config.track.avg_lap_time_s
-    total_race_laps = math.ceil(total_race_time_s / config.track.avg_lap_time_s)
+    total_race_time_s = config.race.duration.seconds + config.track.avg_lap_time.seconds
+    total_race_laps = math.ceil(total_race_time_s / config.track.avg_lap_time.seconds)
     total_fuel_req = total_race_laps * config.track.fuel_per_lap
     total_refuel_req = total_fuel_req - config.car.max_fuel
     total_refuel_time = total_refuel_req / config.car.refuel_rate
 
     # Compute total ADDED pit in/out time for race
-    total_pit_travel_time = (n_stints - 1) * config.track.pit_time_loss_s
+    total_pit_travel_time = (n_stints - 1) * config.track.pit_time_loss.seconds
 
     total_pit_time = total_refuel_time + total_pit_travel_time
 
     # Compute total n race laps w/ pits included
     total_drive_time_s = total_race_time_s - total_pit_time
-    total_drive_laps = math.ceil(total_drive_time_s / config.track.avg_lap_time_s)
+    total_drive_laps = math.ceil(total_drive_time_s / config.track.avg_lap_time.seconds)
 
     # Re-compute n_stints
     n_stints = math.ceil(total_drive_laps / max_stint_laps)
@@ -120,9 +120,9 @@ def _compute_stints(config):
         data.append(stint_data)
     stint_df = pd.DataFrame(data)
 
-    stint_df["drive_time"] = stint_df["n_laps"] * config.track.avg_lap_time_s
+    stint_df["drive_time"] = stint_df["n_laps"] * config.track.avg_lap_time.seconds
     stint_df["pit_service_time"] = stint_df["refuel"] / config.car.refuel_rate
-    stint_df["pit_time"] = (stint_df["refuel"] + config.track.pit_time_loss_s) * stint_df["pit"]
+    stint_df["pit_time"] = (stint_df["refuel"] + config.track.pit_time_loss.seconds) * stint_df["pit"]
     stint_df["stint_time"] = stint_df["drive_time"] + stint_df["pit_time"]
 
     stint_df["lap_end"] = stint_df["n_laps"].cumsum()

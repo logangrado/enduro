@@ -5,12 +5,12 @@
     tire_change_time: 20,
   },
   track: {
-    avg_lap_time_s: 105,
+    avg_lap_time: "1:45",
     fuel_per_lap: 0.80,
-    pit_time_loss_s: 30
+    pit_time_loss: 30
   },
   race: {
-    duration: 360,
+    duration: "6:00:00",
     start_time: "9:30",
     sim_time: "13:40",
     mult: 4,
